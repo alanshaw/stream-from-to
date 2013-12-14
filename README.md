@@ -1,4 +1,4 @@
-stream-from-to
+stream-from-to [![Dependency Status](https://david-dm.org/alanshaw/stream-from-to.png)](https://david-dm.org/alanshaw/stream-from-to)
 ===
 Utility for piping to/from a stream from a variety of sources to a variety of destinations.
 
