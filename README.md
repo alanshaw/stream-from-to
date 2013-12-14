@@ -8,7 +8,7 @@ Usage
 ---
 
 ```javascript
-var streamft = require("streamft")
+var streamft = require("stream-from-to")
   , through = require("through")
 
 // Through stream that converts markdown to HTML
