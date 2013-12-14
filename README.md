@@ -20,6 +20,9 @@ streamft(mdToHtml).from.path("/path/to/doc.md").to.path("/path/to/doc.html", fun
 })
 ```
 
+API
+---
+
 ### from.path(path, opts)
 
 Create a readable stream from `path` and pipe to the through stream. `path` can be a single path or array of paths.
