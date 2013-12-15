@@ -108,3 +108,27 @@ test("path to string with options", function (t) {
     t.end()
   })
 })
+
+test("path to buffer", function (t) {
+  setUp()
+
+  t.plan(3)
+
+  var writeCount = 0
+
+  var ts = through(function (data) {
+    writeCount++
+    this.queue(data)
+  })
+
+  streamft(ts).from.path(__dirname + "/index.js").to.buffer(function (er, buffer) {
+    t.ifError(er)
+
+    t.ok(writeCount > 0, "Should have passed through the through stream")
+
+    var input = fs.readFileSync(__dirname + "/index.js")
+
+    t.equal(input.toString("utf8"), buffer.toString("utf8"), "Should have buffered input")
+    t.end()
+  })
+})
