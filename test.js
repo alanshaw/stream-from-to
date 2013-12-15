@@ -60,3 +60,51 @@ test("path to path shorthand", function (t) {
     t.end()
   })
 })
+
+test("path to string", function (t) {
+  setUp()
+
+  t.plan(3)
+
+  var writeCount = 0
+
+  var ts = through(function (data) {
+    writeCount++
+    this.queue(data)
+  })
+
+  streamft(ts).from.path(__dirname + "/index.js").to.string(function (er, str) {
+    t.ifError(er)
+
+    t.ok(writeCount > 0, "Should have passed through the through stream")
+
+    var input = fs.readFileSync(__dirname + "/index.js", {encoding: "utf8"})
+
+    t.equal(input, str, "Should have buffered input as a string")
+    t.end()
+  })
+})
+
+test("path to string with options", function (t) {
+  setUp()
+
+  t.plan(3)
+
+  var writeCount = 0
+
+  var ts = through(function (data) {
+    writeCount++
+    this.queue(data)
+  })
+
+  streamft(ts).from.path(__dirname + "/index.js").to.string({encoding: "utf8"}, function (er, str) {
+    t.ifError(er)
+
+    t.ok(writeCount > 0, "Should have passed through the through stream")
+
+    var input = fs.readFileSync(__dirname + "/index.js", {encoding: "utf8"})
+
+    t.equal(input, str, "Should have buffered input as a string")
+    t.end()
+  })
+})
