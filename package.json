@@ -1,6 +1,6 @@
 {
   "name": "stream-from-to",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Utility for piping to/from a stream from a variety of sources to a variety of destinations",
   "main": "index.js",
   "scripts": {
