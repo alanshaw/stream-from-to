@@ -8,6 +8,11 @@
   },
   "author": "Alan Shaw",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:alanshaw/stream-from-to.git"
+  },
+  "homepage": "https://github.com/alanshaw/stream-from-to",
   "dependencies": {
     "string-stream": "0.0.7",
     "concat-stream": "~1.2.1",
