@@ -4,7 +4,7 @@
   "description": "Utility for piping to/from a stream from a variety of sources to a variety of destinations",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tap test.js"
   },
   "author": "Alan Shaw",
   "license": "MIT",
@@ -13,5 +13,10 @@
     "concat-stream": "~1.2.1",
     "combine-stream": "0.0.4",
     "async": "~0.2.9"
+  },
+  "devDependencies": {
+    "tap": "~0.4.6",
+    "through": "~2.3.4",
+    "rimraf": "~2.2.5"
   }
 }
