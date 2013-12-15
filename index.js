@@ -53,12 +53,17 @@ function createFrom (throughStream) {
 function createTo (srcStreams, throughStream, outputArray) {
   var exports = {}
 
-  exports.to = function toPath (paths, cb) {
+  exports.to = function toPath (paths, opts, cb) {
     paths = Array.isArray(paths) ? paths : [paths]
+
+    if (!cb) {
+      cb = opts
+      opts = {}
+    }
 
     var tasks = paths.map(function (p, i) {
       return function (cb) {
-        var ws = fs.createWriteStream(p)
+        var ws = fs.createWriteStream(p, opts)
 
         ws.on("finish", function () {
           cb()
