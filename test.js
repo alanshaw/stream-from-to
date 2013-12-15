@@ -376,3 +376,188 @@ test("from strings to buffers", function (t) {
     t.end()
   })
 })
+
+test("concat from paths to path", function (t) {
+  setUp()
+
+  t.plan(3)
+
+  var writeCount = 0
+
+  var createStream = function () {
+    return through(function (data) {
+      writeCount++
+      this.queue(data)
+    })
+  }
+
+  var paths = ["/index.js", "/README.md"]
+    , srcPaths = paths.map(function (p) { return __dirname + p })
+    , destPath = tmpDir + "/munged.js.md"
+
+  streamft(createStream).concat.from.paths(srcPaths).to.path(destPath, function (er) {
+    t.ifError(er)
+
+    t.ok(writeCount > 0, "Should have passed through the through stream")
+
+    var input = srcPaths.map(function (srcPath) {
+      return fs.readFileSync(srcPath, {encoding: "utf8"})
+    })
+
+    var output = fs.readFileSync(destPath, {encoding: "utf8"})
+
+    t.equal(input.join(""), output, "Should have written inputs to output destination")
+
+    t.end()
+  })
+})
+
+test("concat from paths to string", function (t) {
+  setUp()
+
+  t.plan(3)
+
+  var writeCount = 0
+
+  var createStream = function () {
+    return through(function (data) {
+      writeCount++
+      this.queue(data)
+    })
+  }
+
+  var paths = ["/index.js", "/README.md"]
+    , srcPaths = paths.map(function (p) { return __dirname + p })
+
+  streamft(createStream).concat.from.paths(srcPaths).to.string(function (er, str) {
+    t.ifError(er)
+
+    t.ok(writeCount > 0, "Should have passed through the through stream")
+
+    var input = srcPaths.map(function (srcPath) {
+      return fs.readFileSync(srcPath, {encoding: "utf8"})
+    })
+
+    t.equal(input.join(""), str, "Should have written inputs to output string")
+
+    t.end()
+  })
+})
+
+test("concat from paths to buffer", function (t) {
+  setUp()
+
+  t.plan(4)
+
+  var writeCount = 0
+
+  var createStream = function () {
+    return through(function (data) {
+      writeCount++
+      this.queue(data)
+    })
+  }
+
+  var paths = ["/index.js", "/README.md"]
+    , srcPaths = paths.map(function (p) { return __dirname + p })
+
+  streamft(createStream).concat.from.paths(srcPaths).to.buffer(function (er, buf) {
+    t.ifError(er)
+
+    t.ok(writeCount > 0, "Should have passed through the through stream")
+
+    var input = srcPaths.map(function (srcPath) {
+      return fs.readFileSync(srcPath, {encoding: "utf8"})
+    })
+
+    t.ok(Buffer.isBuffer(buf), "Buffer should be a buffer")
+    t.equal(input.join(""), buf.toString("utf8"), "Should have written inputs to output buffer")
+
+    t.end()
+  })
+})
+
+test("concat from strings to path", function (t) {
+  setUp()
+
+  t.plan(3)
+
+  var writeCount = 0
+
+  var createStream = function () {
+    return through(function (data) {
+      writeCount++
+      this.queue(data)
+    })
+  }
+
+  var strings = ["var foo = 1138;", "var bar = 138;"]
+    , destPath = tmpDir + "/munged.js"
+
+  streamft(createStream).concat.from.strings(strings).to.path(destPath, function (er) {
+    t.ifError(er)
+
+    t.ok(writeCount > 0, "Should have passed through the through stream")
+
+    var output = fs.readFileSync(destPath, {encoding: "utf8"})
+
+    t.equal(strings.join(""), output, "Should have written input strings to output destination")
+
+    t.end()
+  })
+})
+
+test("concat from strings to strings", function (t) {
+  setUp()
+
+  t.plan(3)
+
+  var writeCount = 0
+
+  var createStream = function () {
+    return through(function (data) {
+      writeCount++
+      this.queue(data)
+    })
+  }
+
+  var strings = ["var foo = 1138;", "var bar = 138;"]
+
+  streamft(createStream).concat.from.strings(strings).to.string(function (er, str) {
+    t.ifError(er)
+
+    t.ok(writeCount > 0, "Should have passed through the through stream")
+
+    t.equal(strings.join(""), str, "Should have written input strings to output string")
+
+    t.end()
+  })
+})
+
+test("concat from strings to buffer", function (t) {
+  setUp()
+
+  t.plan(4)
+
+  var writeCount = 0
+
+  var createStream = function () {
+    return through(function (data) {
+      writeCount++
+      this.queue(data)
+    })
+  }
+
+  var strings = ["var foo = 1138;", "var bar = 138;"]
+
+  streamft(createStream).concat.from.strings(strings).to.buffer(function (er, buf) {
+    t.ifError(er)
+
+    t.ok(writeCount > 0, "Should have passed through the through stream")
+
+    t.ok(Buffer.isBuffer(buf), "Buffer should be a buffer")
+    t.equal(strings.join(""), buf.toString("utf8"), "Should have written input strings to output string")
+
+    t.end()
+  })
+})
