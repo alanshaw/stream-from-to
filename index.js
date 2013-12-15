@@ -1,10 +1,12 @@
 var fs = require("fs")
+  , Stream = require("stream")
   , concatStream = require("concat-stream")
-  , StringStream = require("string-stream")
   , CombineStream = require("combine-stream")
   , async = require("async")
+  , resumer = require("resumer")
+  , Buffer = require("buffer").Buffer
 
-function createFrom (throughStream) {
+function createFrom (createStream) {
   var exports = {}
 
   exports.from = function fromPath (paths, opts) {
@@ -15,20 +17,24 @@ function createFrom (throughStream) {
       return fs.createReadStream(p, opts)
     })
 
-    return createTo(srcStreams, throughStream, outputArray)
+    return createTo(srcStreams, createStream, outputArray)
   }
 
   exports.from.path = exports.from
+  exports.from.paths = exports.from
+
   exports.from.string = function fromString (strings) {
     var outputArray = Array.isArray(strings)
     strings = Array.isArray(strings) ? strings : [strings]
 
     var srcStreams = strings.map(function (s) {
-      return new StringStream(s)
+      return resumer().queue(s).end()
     })
 
-    return createTo(srcStreams, throughStream, outputArray)
+    return createTo(srcStreams, createStream, outputArray)
   }
+
+  exports.from.strings = exports.from.string
 
   exports.concat = {}
   exports.concat.from = function concatFromPath (paths, opts) {
@@ -38,19 +44,26 @@ function createFrom (throughStream) {
       return fs.createReadStream(p, opts)
     }))
 
-    return createTo([srcStream], throughStream, false)
+    return createTo([srcStream], createStream, false)
   }
 
   exports.concat.from.path = exports.concat.from
+  exports.concat.from.paths = exports.concat.from
+
   exports.concat.from.string = function concatFromString (strings) {
     strings = Array.isArray(strings) ? strings : [strings]
-    return createTo([new StringStream(strings.join(""))], throughStream, false)
+
+    var stringStream = resumer().queue(strings.join("")).end()
+
+    return createTo([stringStream], createStream, false)
   }
+
+  exports.concat.from.strings = exports.concat.from.string
 
   return exports
 }
 
-function createTo (srcStreams, throughStream, outputArray) {
+function createTo (srcStreams, createStream, outputArray) {
   var exports = {}
 
   exports.to = function toPath (paths, opts, cb) {
@@ -69,7 +82,7 @@ function createTo (srcStreams, throughStream, outputArray) {
           cb()
         })
 
-        srcStreams[i].pipe(throughStream).pipe(ws)
+        srcStreams[i].pipe(createStream()).pipe(ws)
       }
     })
 
@@ -77,41 +90,64 @@ function createTo (srcStreams, throughStream, outputArray) {
   }
 
   exports.to.path = exports.to
-  exports.to.buffer = function toBuffer (cb) {
+  exports.to.paths = exports.to
+
+  exports.to.buffer = function toBuffer (opts, cb) {
+    if (!cb) {
+      cb = opts
+      opts = {}
+    }
 
     var tasks = srcStreams.map(function (ss) {
       return function (cb) {
-        ss.pipe(throughStream).pipe(concatStream(function (buf) { cb(null, buf) }))
+        ss.pipe(createStream()).pipe(concatStream(function (buf) { cb(null, buf) }))
       }
     })
 
     async.parallel(tasks, function (er, bufs) {
       if (er) return cb(er)
+
+      bufs = bufs.map(function (b) {
+        return Buffer.isBuffer(b) ? b : new Buffer(b, opts.encoding)
+      })
+
       cb(null, outputArray ? bufs : bufs[0])
     })
   }
+
+  exports.to.buffers = exports.to.buffer
+
   exports.to.string = function toString (opts, cb) {
     if (!cb) {
       cb = opts
       opts = {}
     }
 
-    exports.to.buffer(function (er, bufs) {
+    var tasks = srcStreams.map(function (ss) {
+      return function (cb) {
+        ss.pipe(createStream()).pipe(concatStream(function (str) { cb(null, str) }))
+      }
+    })
+
+    async.parallel(tasks, function (er, strs) {
       if (er) return cb(er)
 
-      bufs = Array.isArray(bufs) ? bufs : [bufs]
-
-      var strs = bufs.map(function (buf) {
-        return buf.toString(opts.encoding, opts.start, opts.end)
+      strs = strs.map(function (s) {
+        return s.toString(opts.encoding)
       })
 
       cb(null, outputArray ? strs : strs[0])
     })
   }
 
+  exports.to.strings = exports.to.string
+
   return exports
 }
 
-module.exports = function (throughStream) {
-  return createFrom(throughStream)
+/**
+ * @param {Function} createStream Function that creates and returns a through stream
+ */
+module.exports = function (createStream) {
+  return createFrom(createStream)
 }

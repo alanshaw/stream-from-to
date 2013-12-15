@@ -14,10 +14,10 @@
   },
   "homepage": "https://github.com/alanshaw/stream-from-to",
   "dependencies": {
-    "string-stream": "0.0.7",
     "concat-stream": "~1.2.1",
     "combine-stream": "0.0.4",
-    "async": "~0.2.9"
+    "async": "~0.2.9",
+    "resumer": "0.0.0"
   },
   "devDependencies": {
     "tap": "~0.4.6",

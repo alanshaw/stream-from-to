@@ -2,7 +2,7 @@ stream-from-to [![Build Status](https://travis-ci.org/alanshaw/stream-from-to.pn
 ===
 Utility for piping to/from a stream from a variety of sources to a variety of destinations.
 
-Pass stream-from-to a [through](https://npmjs.org/package/through) stream and it'll give you back an object that simplifies the constructon of source and destination streams for piping to/from the thorugh stream.
+Pass stream-from-to a function that creates a [through](https://npmjs.org/package/through) stream and it'll give you back an object that simplifies the constructon of source and destination streams for piping to/from the thorugh stream.
 
 Usage
 ---
@@ -11,8 +11,10 @@ Usage
 var streamft = require("stream-from-to")
   , through = require("through")
 
-// Through stream that converts markdown to HTML
-var mdToHtml = through()
+var mdToHtml = function () {
+  // Through stream that converts markdown to HTML
+  return through()
+}
 
 streamft(mdToHtml).from.path("/path/to/doc.md").to.path("/path/to/doc.html", function (er) {
     if (er) return console.error(er)
@@ -31,11 +33,11 @@ Create a readable stream from `path` and pipe to the through stream. `path` can 
 
 Create a readable stream from `string` and pipe to the through stream. `string` can be a single string or array of strings.
 
-### concat.from.path(paths, opts)
+### concat.from.paths(paths, opts)
 
 Create and concatinate readable streams from `paths` and pipe to the through stream.
 
-### concat.from.string(strings, opts)
+### concat.from.strings(strings, opts)
 
 Create and concatinate readable streams from `strings` and pipe to the through stream.
 
