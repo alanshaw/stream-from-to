@@ -11,7 +11,7 @@ Usage
 var streamft = require("stream-from-to")
   , through = require("through")
 
-var mdToHtml = function () {
+var mdToHtml = function (filePath) {
   // Through stream that converts markdown to HTML
   return through()
 }
@@ -20,6 +20,15 @@ streamft(mdToHtml).from.path("/path/to/doc.md").to.path("/path/to/doc.html", fun
     if (er) return console.error(er)
     // Done!
 })
+```
+
+With [brfs](https://github.com/substack/brfs):
+
+```javascript
+var streamft = require("stream-from-to")
+  , brfs = require("brfs")
+
+streamft(brfs).from("src/index.js").to("dist/index.js")
 ```
 
 API

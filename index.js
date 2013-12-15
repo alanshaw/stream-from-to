@@ -17,7 +17,7 @@ function createFrom (createStream) {
       return fs.createReadStream(p, opts)
     })
 
-    return createTo(srcStreams, createStream, outputArray)
+    return createTo(paths, srcStreams, createStream, outputArray)
   }
 
   exports.from.path = exports.from
@@ -31,7 +31,7 @@ function createFrom (createStream) {
       return resumer().queue(s).end()
     })
 
-    return createTo(srcStreams, createStream, outputArray)
+    return createTo(strings, srcStreams, createStream, outputArray)
   }
 
   exports.from.strings = exports.from.string
@@ -44,7 +44,7 @@ function createFrom (createStream) {
       return fs.createReadStream(p, opts)
     }))
 
-    return createTo([srcStream], createStream, false)
+    return createTo([paths], [srcStream], createStream, false)
   }
 
   exports.concat.from.path = exports.concat.from
@@ -55,7 +55,7 @@ function createFrom (createStream) {
 
     var stringStream = resumer().queue(strings.join("")).end()
 
-    return createTo([stringStream], createStream, false)
+    return createTo([strings], [stringStream], createStream, false)
   }
 
   exports.concat.from.strings = exports.concat.from.string
@@ -63,7 +63,7 @@ function createFrom (createStream) {
   return exports
 }
 
-function createTo (srcStreams, createStream, outputArray) {
+function createTo (srcs, srcStreams, createStream, outputArray) {
   var exports = {}
 
   exports.to = function toPath (paths, opts, cb) {
@@ -82,7 +82,7 @@ function createTo (srcStreams, createStream, outputArray) {
           cb()
         })
 
-        srcStreams[i].pipe(createStream()).pipe(ws)
+        srcStreams[i].pipe(createStream(srcs[i])).pipe(ws)
       }
     })
 
@@ -98,9 +98,9 @@ function createTo (srcStreams, createStream, outputArray) {
       opts = {}
     }
 
-    var tasks = srcStreams.map(function (ss) {
+    var tasks = srcStreams.map(function (ss, i) {
       return function (cb) {
-        ss.pipe(createStream()).pipe(concatStream(function (buf) { cb(null, buf) }))
+        ss.pipe(createStream(srcs[i])).pipe(concatStream(function (buf) { cb(null, buf) }))
       }
     })
 
@@ -123,9 +123,9 @@ function createTo (srcStreams, createStream, outputArray) {
       opts = {}
     }
 
-    var tasks = srcStreams.map(function (ss) {
+    var tasks = srcStreams.map(function (ss, i) {
       return function (cb) {
-        ss.pipe(createStream()).pipe(concatStream(function (str) { cb(null, str) }))
+        ss.pipe(createStream(srcs[i])).pipe(concatStream(function (str) { cb(null, str) }))
       }
     })
 
