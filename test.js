@@ -11,7 +11,7 @@ function setUp () {
   fs.mkdirSync(tmpDir)
 }
 
-test("path to path", function (t) {
+test("from path to path", function (t) {
   setUp()
 
   t.plan(3)
@@ -36,7 +36,7 @@ test("path to path", function (t) {
   })
 })
 
-test("path to path shorthand", function (t) {
+test("from path to path shorthand", function (t) {
   setUp()
 
   t.plan(3)
@@ -61,7 +61,7 @@ test("path to path shorthand", function (t) {
   })
 })
 
-test("path to string", function (t) {
+test("from path to string", function (t) {
   setUp()
 
   t.plan(3)
@@ -85,7 +85,7 @@ test("path to string", function (t) {
   })
 })
 
-test("path to string with options", function (t) {
+test("from path to string with options", function (t) {
   setUp()
 
   t.plan(3)
@@ -109,7 +109,7 @@ test("path to string with options", function (t) {
   })
 })
 
-test("path to buffer", function (t) {
+test("from path to buffer", function (t) {
   setUp()
 
   t.plan(3)
