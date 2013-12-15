@@ -4,7 +4,7 @@ Utility for piping to/from a stream from a variety of sources to a variety of de
 
 Pass stream-from-to a function that creates a [through](https://npmjs.org/package/through) stream and it'll give you back an object that simplifies the constructon of source and destination streams for piping to/from the through stream.
 
-Usage
+Usage examples
 ---
 
 ```javascript
