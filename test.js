@@ -152,6 +152,36 @@ test("from path to string with options", function (t) {
   })
 })
 
+test("from paths to strings", function (t) {
+  setUp()
+
+  var writeCount = 0
+
+  var createStream = function () {
+    return through(function (data) {
+      writeCount++
+      this.queue(data)
+    })
+  }
+
+  var srcPaths = [__dirname + "/index.js", __dirname + "/README.md"]
+
+  t.plan(srcPaths.length + 2)
+
+  streamft(createStream).from.paths(srcPaths).to.strings(function (er, strs) {
+    t.ifError(er)
+
+    t.ok(writeCount > 0, "Should have passed through the through stream")
+
+    srcPaths.forEach(function (srcPath, i) {
+      var input = fs.readFileSync(srcPath, {encoding: "utf8"})
+      t.equal(input, strs[i], "Should have written input " + i + " to output string " + i)
+    })
+
+    t.end()
+  })
+})
+
 test("from path to buffer", function (t) {
   setUp()
 
@@ -207,6 +237,38 @@ test("from string to path", function (t) {
   })
 })
 
+test("from strings to paths", function (t) {
+  setUp()
+
+  var writeCount = 0
+
+  var createStream = function () {
+    return through(function (data) {
+      writeCount++
+      this.queue(data)
+    })
+  }
+
+  var strings = ["Test 1", "Test 2"]
+    , destPaths = strings.map(function (s, i) { return tmpDir + "/" + i + ".txt" })
+
+  t.plan(destPaths.length + 2)
+
+  streamft(createStream).from.strings(strings).to.paths(destPaths, function (er) {
+    t.ifError(er)
+
+    t.ok(writeCount > 0, "Should have passed through the through stream")
+
+    strings.forEach(function (str, i) {
+      var output = fs.readFileSync(destPaths[i], {encoding: "utf8"})
+
+      t.equal(str, output, "Should have written string " + i + " to output " + i + " destination")
+    })
+
+    t.end()
+  })
+})
+
 test("from string to string", function (t) {
   setUp()
 
@@ -227,6 +289,35 @@ test("from string to string", function (t) {
     t.ifError(er)
     t.ok(writeCount > 0, "Should have passed through the through stream")
     t.equal(input, str, "Should have written input to output destination")
+    t.end()
+  })
+})
+
+test("from strings to strings", function (t) {
+  setUp()
+
+  var writeCount = 0
+
+  var createStream = function () {
+    return through(function (data) {
+      writeCount++
+      this.queue(data)
+    })
+  }
+
+  var strings = ["Test 1", "Test 2"]
+
+  t.plan(strings.length + 2)
+
+  streamft(createStream).from.strings(strings).to.strings(function (er, strs) {
+    t.ifError(er)
+
+    t.ok(writeCount > 0, "Should have passed through the through stream")
+
+    strings.forEach(function (str, i) {
+      t.equal(str, strs[i], "Should have written string " + i + " to output string " + i)
+    })
+
     t.end()
   })
 })
@@ -252,6 +343,36 @@ test("from string to buffer", function (t) {
     t.ok(writeCount > 0, "Should have passed through the through stream")
     t.ok(Buffer.isBuffer(buf), "Buffer should be a buffer")
     t.equal(input, buf.toString("utf8"), "Should have written input to output destination")
+    t.end()
+  })
+})
+
+test("from strings to buffers", function (t) {
+  setUp()
+
+  var writeCount = 0
+
+  var createStream = function () {
+    return through(function (data) {
+      writeCount++
+      this.queue(data)
+    })
+  }
+
+  var strings = ["Test 1", "Test 2"]
+
+  t.plan((strings.length * 2) + 2)
+
+  streamft(createStream).from.strings(strings).to.buffers(function (er, bufs) {
+    t.ifError(er)
+
+    t.ok(writeCount > 0, "Should have passed through the through stream")
+
+    strings.forEach(function (str, i) {
+      t.ok(Buffer.isBuffer(bufs[i]))
+      t.equal(str, bufs[i].toString("utf8"), "Should have written string " + i + " to output buffer " + i)
+    })
+
     t.end()
   })
 })
