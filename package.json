@@ -17,7 +17,7 @@
     "concat-stream": "~1.2.1",
     "combine-stream": "0.0.4",
     "async": "~0.2.9",
-    "resumer": "0.0.0"
+    "mkdirp": "~0.3.5"
   },
   "devDependencies": {
     "tap": "~0.4.6",

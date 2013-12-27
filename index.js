@@ -1,10 +1,11 @@
 var fs = require("fs")
-  , Stream = require("stream")
+  , path = require("path")
   , concatStream = require("concat-stream")
   , CombineStream = require("combine-stream")
   , async = require("async")
-  , resumer = require("resumer")
+  , stream = require("stream")
   , Buffer = require("buffer").Buffer
+  , mkdirp = require("mkdirp")
 
 function createFrom (createStream) {
   var exports = {}
@@ -28,7 +29,14 @@ function createFrom (createStream) {
     strings = Array.isArray(strings) ? strings : [strings]
 
     var srcStreams = strings.map(function (s) {
-      return resumer().queue(s).end()
+      var stringStream = new stream.Readable()
+
+      stringStream._read = function () {
+        this.push(s)
+        this.push(null)
+      }
+
+      return stringStream
     })
 
     return createTo(strings, srcStreams, createStream, outputArray)
@@ -53,7 +61,12 @@ function createFrom (createStream) {
   exports.concat.from.string = function concatFromString (strings) {
     strings = Array.isArray(strings) ? strings : [strings]
 
-    var stringStream = resumer().queue(strings.join("")).end()
+    var stringStream = new stream.Readable()
+
+    stringStream._read = function () {
+      this.push(strings.join(""))
+      this.push(null)
+    }
 
     return createTo([strings], [stringStream], createStream, false)
   }
@@ -76,13 +89,15 @@ function createTo (srcs, srcStreams, createStream, outputArray) {
 
     var tasks = paths.map(function (p, i) {
       return function (cb) {
-        var ws = fs.createWriteStream(p, opts)
+        mkdirp(path.dirname(p), function (er) {
+          if (er) return cb(er)
 
-        ws.on("finish", function () {
-          cb()
+          var ws = fs.createWriteStream(p, opts)
+
+          ws.on("finish", function () { cb() })
+
+          srcStreams[i].pipe(createStream(srcs[i])).pipe(ws)
         })
-
-        srcStreams[i].pipe(createStream(srcs[i])).pipe(ws)
       }
     })
 
