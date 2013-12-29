@@ -115,17 +115,12 @@ function createTo (srcs, srcStreams, createStream, outputArray) {
 
     var tasks = srcStreams.map(function (ss, i) {
       return function (cb) {
-        ss.pipe(createStream(srcs[i])).pipe(concatStream(function (buf) { cb(null, buf) }))
+        ss.pipe(createStream(srcs[i])).pipe(concatStream({encoding: "buffer"}, function (buf) { cb(null, buf) }))
       }
     })
 
     async.parallel(tasks, function (er, bufs) {
       if (er) return cb(er)
-
-      bufs = bufs.map(function (b) {
-        return Buffer.isBuffer(b) ? b : new Buffer(b, opts.encoding)
-      })
-
       cb(null, outputArray ? bufs : bufs[0])
     })
   }
@@ -140,17 +135,12 @@ function createTo (srcs, srcStreams, createStream, outputArray) {
 
     var tasks = srcStreams.map(function (ss, i) {
       return function (cb) {
-        ss.pipe(createStream(srcs[i])).pipe(concatStream(function (str) { cb(null, str) }))
+        ss.pipe(createStream(srcs[i])).pipe(concatStream({encoding: "string"}, function (str) { cb(null, str) }))
       }
     })
 
     async.parallel(tasks, function (er, strs) {
       if (er) return cb(er)
-
-      strs = strs.map(function (s) {
-        return s.toString(opts.encoding)
-      })
-
       cb(null, outputArray ? strs : strs[0])
     })
   }
