@@ -4,7 +4,7 @@
   "description": "Utility for piping to/from a stream from a variety of sources to a variety of destinations",
   "main": "index.js",
   "scripts": {
-    "test": "tap test.js"
+    "test": "tape test.js"
   },
   "author": "Alan Shaw",
   "license": "MIT",
@@ -14,14 +14,14 @@
   },
   "homepage": "https://github.com/alanshaw/stream-from-to",
   "dependencies": {
-    "concat-stream": "~1.4.1",
+    "async": "^0.9.0",
     "combine-stream": "0.0.4",
-    "async": "~0.2.9",
-    "mkdirp": "~0.3.5"
+    "concat-stream": "^1.4.7",
+    "mkdirp": "^0.5.0"
   },
   "devDependencies": {
-    "tap": "~0.4.6",
-    "through": "~2.3.4",
-    "rimraf": "~2.2.5"
+    "rimraf": "~2.2.5",
+    "tape": "^3.4.0",
+    "through": "~2.3.4"
   }
 }

@@ -1,5 +1,5 @@
 var streamft = require("./")
-  , test = require("tap").test
+  , test = require("tape")
   , through = require("through")
   , fs = require("fs")
   , rimraf = require("rimraf")
