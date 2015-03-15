@@ -1,10 +1,9 @@
 var fs = require("fs")
   , path = require("path")
   , concatStream = require("concat-stream")
-  , CombineStream = require("combine-stream")
+  , seriesStream = require("series-stream")
   , async = require("async")
   , stream = require("stream")
-  , Buffer = require("buffer").Buffer
   , mkdirp = require("mkdirp")
 
 function createFrom (createStream) {
@@ -48,9 +47,11 @@ function createFrom (createStream) {
   exports.concat.from = function concatFromPath (paths, opts) {
     paths = Array.isArray(paths) ? paths : [paths]
 
-    var srcStream = new CombineStream(paths.map(function (p) {
-      return fs.createReadStream(p, opts)
-    }))
+    var srcStream = seriesStream()
+
+    paths.forEach(function (p) {
+      srcStream.add(fs.createReadStream(p, opts))
+    })
 
     return createTo([paths], [srcStream], createStream, false)
   }
