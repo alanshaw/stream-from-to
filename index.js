@@ -48,6 +48,7 @@ function createFrom (createStream) {
     paths = Array.isArray(paths) ? paths : [paths]
 
     var srcStream = seriesStream()
+    srcStream.setMaxListeners(paths.length)
 
     paths.forEach(function (p) {
       srcStream.add(fs.createReadStream(p, opts))
