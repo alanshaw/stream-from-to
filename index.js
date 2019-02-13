@@ -5,6 +5,7 @@ var fs = require("fs")
   , async = require("async")
   , stream = require("stream")
   , mkdirp = require("mkdirp")
+  , events = require("events")
 
 function createFrom (createStream) {
   var exports = {}
@@ -48,7 +49,15 @@ function createFrom (createStream) {
     paths = Array.isArray(paths) ? paths : [paths]
 
     var srcStream = seriesStream()
-    srcStream.setMaxListeners(paths.length)
+    // eventNames is only available in >=v6.0.0 so add backwards compat
+    var max = srcStream.eventNames
+      ? srcStream.eventNames().reduce(function (m, n) {
+          return Math.max(m, srcStream.listenerCount(n))
+        }, 0)
+      : srcStream.listenerCount
+        ? srcStream.listenerCount("end")
+        : events.EventEmitter.listenerCount(srcStream, "end")
+    srcStream.setMaxListeners(max + paths.length)
 
     paths.forEach(function (p) {
       srcStream.add(fs.createReadStream(p, opts))
