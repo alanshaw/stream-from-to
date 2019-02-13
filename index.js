@@ -48,7 +48,10 @@ function createFrom (createStream) {
     paths = Array.isArray(paths) ? paths : [paths]
 
     var srcStream = seriesStream()
-    srcStream.setMaxListeners(paths.length)
+    var max = srcStream.eventNames().reduce(function (m, n) {
+      return Math.max(m, srcStream.listenerCount(n))
+    }, 0)
+    srcStream.setMaxListeners(max + paths.length)
 
     paths.forEach(function (p) {
       srcStream.add(fs.createReadStream(p, opts))
